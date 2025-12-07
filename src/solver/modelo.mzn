@@ -56,5 +56,7 @@ solve minimize TotalCost;
 % Salida: primera línea costo total, luego los índices de los tablones (0..n-1)
 output [
     show(TotalCost), "\n",
-    concat([ show(order[k] - 1) ++ if k < n then "\n" else "" endif | k in 1..n ])
+    "[",
+    concat([ show(order[k] - 1) ++ if k == n then "" else " " endif | k in 1..n ]),
+    "]"
 ];

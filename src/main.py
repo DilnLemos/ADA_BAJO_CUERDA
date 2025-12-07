@@ -9,18 +9,18 @@ import filechooser as fc
 modified_route = None
 
 def leer_finca(route):
-    ruta = route
-    with open(ruta, 'r') as f:
+    with open(route, 'r') as f:
         lineas = [l.strip() for l in f.readlines() if l.strip()]
     n = int(lineas[0])
     finca = [tuple(map(int, l.split(','))) for l in lineas[1:n+1]]
     
     return finca
+
 def exit():
     print("Adios")
     return False
 
-def main(r='finca.txt', n=None):
+def main(r='files/finca.txt', n=None):
     global modified_route
     route = modified_route if (modified_route != None) else r
     route = os.path.abspath(modified_route) if modified_route != None else os.path.abspath(r)
