@@ -1,10 +1,15 @@
 import sys 
 import os 
 import time
+from minizinc import Model, Instance, Solver
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
 import filechooser as fc
+
+model = Model("./src/solver/modelo.mzn")
+solver = Solver.lookup("coin-bc")
+instance = Instance(solver, model)
 
 modified_route = None
 
@@ -12,9 +17,9 @@ def leer_finca(route):
     with open(route, 'r') as f:
         lineas = [l.strip() for l in f.readlines() if l.strip()]
     n = int(lineas[0])
-    finca = [tuple(map(int, l.split(','))) for l in lineas[1:n+1]]
+    tr, ts, p = [[int(l.split(",")[i]) for l in lineas[1:len(lineas)]] for i in range(3)]
     
-    return finca
+    return tr, ts, p, n
 
 def exit():
     print("Adios")
@@ -26,7 +31,7 @@ def main(r='files/finca.txt', n=None):
     route = os.path.abspath(modified_route) if modified_route != None else os.path.abspath(r)
     if n == None:
         print("          Riego Optimo")
-        text = ["Soluciones implementada con programacion lineal utilizando el solver minizinc", "1 - Ejecutar Solucion", " 2 - Especificar archivo (si no se hace toma uno por defecto)", "SALIR : digite SALIR"]
+        text = ["Soluciones implementada con programacion lineal utilizando el solver minizinc", "1 - Ejecutar Solucion", "2 - Especificar archivo (si no se hace toma uno por defecto)", "SALIR : digite SALIR"]
         for t in text:
             print(f"\n{t}")
         opt = " "
@@ -48,8 +53,7 @@ def main(r='files/finca.txt', n=None):
                 print("Eleccion no disponible 🙄")
             
             elif opt == 2:
-                modified_route = fc.select_file()
-                print(f"source : {modified_route}")
+                route = fc.select_file()
             elif opt > 2:
                 print("No tenemos tantas opciones")
                 opt = 0
@@ -57,25 +61,28 @@ def main(r='files/finca.txt', n=None):
     else: 
         opt = n
         
-    if opt == 1:
-        print(f" === RESOLVIENDO {os.path.basename(route)} ===")
-        finca = leer_finca(route)
-        print(f"source : {route}")
-        tiempo_i = time.time()
-        mejor_permutacion, mejor_costo = "esta vaina no esta lista", "esto tampoco"
-        tiempo_f = time.time()
+    print(f" === RESOLVIENDO {os.path.basename(route)} ===")
+    ts, tr, p, n= leer_finca(route) 
+    instance["ts"] = ts
+    instance["tr"] = tr
+    instance["p"] = p
+    instance["n"] = n
+    print(f"source : {route}")
+    tiempo_i = time.time()
+    result = instance.solve()
+    tiempo_f = time.time()
 
-        print("=======================================================================")
-        print("RESULTADO ÓPTIMO")
-        print("=======================================================================")
-        print("Tiempo de ejecución:", tiempo_f - tiempo_i)
-        
-        print(mejor_costo)
+    print("=======================================================================")
+    print("RESULTADO ÓPTIMO")
+    print("=======================================================================")
+    print("Tiempo de ejecución:", tiempo_f - tiempo_i)
+    
+    print(result)
+    '''
+    for idx in mejor_permutacion:
+        print(idx)
         '''
-        for idx in mejor_permutacion:
-            print(idx)
-            '''
-        input("Enter para continuar")
+    input("Enter para continuar")
 
 
 if __name__ == "__main__":
