@@ -19,7 +19,10 @@ El riego se realiza de forma secuencial y no hay costo por mover el sistema de r
 El proyecto se basará en un modelo hecho en el programa *minizinc* para realizar todas las pruebas contundentes de funcionamiento para la función objetivo.
 
 ##### *a. Dados los parámetros*
-$n$: número de tablones (enteros). Para cada tablón $i\in\{0,\dots,n-1\}$:$$\begin{aligned}
+$n$: número de tablones (enteros). Para cada tablón 
+$i\in\{0,\dots,n-1\}$ : 
+
+$$\begin{aligned}
 &t^s_i &&:\ \text{tiempo de supervivencia (días)}\\
 &t^r_i &&:\ \text{tiempo de regado (días)}\\
 &p_i &&:\ \text{prioridad (peso), entero en }\{1,\dots,4\}
@@ -37,10 +40,13 @@ array[1..n] of int: p;   % prioridad (p_i)
 
 ##### *b. Variables de Decisión y Permutación:*
 Buscamos una permutación $\Pi=\langle\pi_0,\pi_1,\dots,\pi_{n-1}\rangle$ de los índices $\{0,\dots,n-1\}$ usando La restricción $all_.different$ que  asegura que se considere una secuencia única de tablones, mientras que $inverse$ establece la relación de mapeo entre la posición de riego y el índice del tablón.
-1. La representamos con las siguientes variables enteras:$$\begin{aligned}
+1. La representamos con las siguientes variables enteras:
+
+$$\begin{aligned}
 &\mathrm{order}[k] = \text{índice del tablón que se riega en la posición }k\quad( k=1,\dots,n ).\\
 &\mathrm{pos}_i = \text{la posición }(1..n) \text{ donde aparece el tablón }i \text{ en la permutación (inversa de order).}
 \end{aligned}$$
+
 ```minizinc
 
 % Variables de Secuenciación
@@ -52,11 +58,14 @@ constraint inverse(order, pos);
 ```
 
 ##### *c. Tiempos de Riego Secuencial:*
-Definimos el tiempo de inicio de riego para la posición $k$, $T^\mathrm{ini}(k)$, y el tiempo de finalización de riego para la posición $k$, $C(k)$.$$\begin{aligned}
+Definimos el tiempo de inicio de riego para la posición $k$, $T^\mathrm{ini}(k)$, y el tiempo de finalización de riego para la posición $k$, $C(k)$.
+
+$$\begin{aligned}
 T^\mathrm{ini}(1) &= 0 \quad\text{(El primer tablón inicia en } t=0 \text{)}\\
 C(k) &= T^\mathrm{ini}(k) + t^r_{\mathrm{order}[k]} \quad\text{(Finalización = Inicio + Regado).}\\
 T^\mathrm{ini}(k) &= C(k-1) \quad\text{para } k=2,\dots,n \quad\text{(El siguiente inicia cuando el anterior finaliza)}
 \end{aligned}$$
+
 ```minizinc
 
 % Cálculo tiempo inicio (t_pi_j^Pi) y Finalización (t_pi_j^Pi + tr_pi_j)
@@ -88,10 +97,12 @@ constraint forall(i in 1..n) (
 
 ##### *d. Penalización (Tardanza Ponderada):*
 Se implementa la linealización de la función tardanza ($T_i = \max(0, C_i - t^s_i)$) mediante dos restricciones de desigualdad, garantizando que el valor de $T[i]$ sea exactamente el retraso, o cero si no hay retraso.
+
 $$\begin{aligned}
 &C_i = C(\mathrm{pos}_i) \quad\text{(tiempo de finalización del tablón }i).\\
 &T_i = \max\bigl(0,\; C_i - t^s_i\bigr) \quad\text{(tardanza/retraso en días)}
 \end{aligned}$$
+
 ```minizinc
 % 3. Penalización
 array[1..n] of var 0..sum(tr): T; % max(0, Cjob[i] - ts[i]) 
@@ -102,8 +113,11 @@ constraint forall(i in 1..n) (
 ```
 
 ##### *e. Función Objetivo*
-Se busca minimizar el Costo Total de Riego ($CRF^\Pi$), que es la suma de las penalizaciones ponderadas por la prioridad de cada tablón2.$$\min Z = \sum_{i=0}^{n-1} p_i\,T_i,
+Se busca minimizar el Costo Total de Riego ($CRF^\Pi$), que es la suma de las penalizaciones ponderadas por la prioridad de cada tablón2.
+
+$$\min Z = \sum_{i=0}^{n-1} p_i\,T_i,
 \quad\text{donde } T_i = \max\bigl(0,\; C_i - t^s_i\bigr).$$
+
 ```minizinc
 
 % Función objetivo: minimizar suma de p[i] * T[i] 
@@ -118,6 +132,7 @@ output [
 ```
 
 ##### f. Restricciones Principales
+
 $$\begin{aligned}
 &\mathrm{order}: \text{es una permutación de }\{1,\dots,n\}.\\
 &\mathrm{pos}: \text{es la inversa de }\mathrm{order}.\\
