@@ -143,3 +143,41 @@ $$\begin{aligned}
 &T_i \ge C_i - t^s_i \quad \forall i\ \text{(Garantiza la linealización del máximo).}\\
 &T_i \ge 0 \quad \forall i.
 \end{aligned}$$
+
+## 3. Integracion con otro lenguaje
+El modelo se integro con python para manejar los inputs y conectar con la libreria de minizinc:
+
+Para esto se uso la libreria de python minizinc que permite cargar un modelo, seleccionar un solver
+y ingresar los datos de input para ser resueltos 
+
+``` python
+    from minizinc import Model, Instance, Solver
+    model = Model("./src/solver/modelo.mzn")
+    solver = Solver.lookup("coin-bc")
+    instance = Instance(solver, model)
+    ...
+    ts, tr, p, n= leer_finca(route) 
+    instance["ts"] = ts
+    instance["tr"] = tr
+    instance["p"] = p
+    instance["n"] = n
+    
+    result = instance.solve()
+
+```
+El modelo nos retorna el costo de riego minimo y el orden de los tablones.
+
+## 4. Manejo de Entrada de datos
+El usuario puede ejecutar la finca por defecto o añadir una nueva finca a la carpeta file
+
+## 5. Presentacion de resultados
+El resultado de la solucion del modelo se presenta de manera textual como se muestra en la siguiente figura:
+```
+=======================================================================
+RESULTADO ÓPTIMO
+=======================================================================
+Tiempo de ejecución: 0.2975609302520752
+14
+[2 1 3 0 4]
+```
+6. Pruebas de Software
