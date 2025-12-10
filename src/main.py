@@ -1,16 +1,20 @@
 import sys 
 import os 
 import time
+from pathlib import Path
 from minizinc import Model, Instance, Solver
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'test')))
-
 import filechooser as fc
 
-model = Model(os.path.abspath("./solver/modelo.mzn"))
+# fix para path ejecutando desde tests 
+# cortesia de yepeto
+
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "solver" / "modelo.mzn"
+
+model = Model(MODEL_PATH)
 solver = Solver.lookup("coin-bc")
 instance = Instance(solver, model)
 
