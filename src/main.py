@@ -1,21 +1,15 @@
-import sys 
 import os 
 import time
+import sys
 from minizinc import Model, Instance, Solver
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'test')))
 
 import filechooser as fc
 
-model = Model(os.path.abspath("./solver/modelo.mzn"))
+model = Model("src/solver/modelo.mzn")
 solver = Solver.lookup("coin-bc")
-instance = Instance(solver, model)
-
 modified_route = None
 
+print(sys.path)
 def leer_finca(route):
     with open(route, 'r') as f:
         lineas = [l.strip() for l in f.readlines() if l.strip()]
@@ -28,7 +22,8 @@ def exit():
     print("Adios")
     return False
 
-def main(r='files/finca.txt', n=None):
+def main(r='src/files/finca.txt', n=None):
+    instance = Instance(solver, model)
     global modified_route
     route = modified_route if (modified_route != None) else r
     route = os.path.abspath(modified_route) if modified_route != None else os.path.abspath(r)
