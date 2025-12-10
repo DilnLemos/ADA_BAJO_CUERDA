@@ -5,9 +5,12 @@ from minizinc import Model, Instance, Solver
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'test')))
+
 import filechooser as fc
 
-model = Model("./src/solver/modelo.mzn")
+model = Model(os.path.abspath("./solver/modelo.mzn"))
 solver = Solver.lookup("coin-bc")
 instance = Instance(solver, model)
 
@@ -29,6 +32,7 @@ def main(r='files/finca.txt', n=None):
     global modified_route
     route = modified_route if (modified_route != None) else r
     route = os.path.abspath(modified_route) if modified_route != None else os.path.abspath(r)
+    print(route)
     if n == None:
         print("          Riego Optimo")
         text = ["Soluciones implementada con programacion lineal utilizando el solver minizinc", "1 - Ejecutar Solucion", "2 - Especificar archivo (si no se hace toma uno por defecto)", "SALIR : digite SALIR"]
